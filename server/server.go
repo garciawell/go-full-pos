@@ -38,8 +38,7 @@ func main() {
 	http.HandleFunc("/cotacao", handleCurrency)
 
 	if _, err := os.Stat("./cotacao.db"); err != nil {
-		fmt.Printf("File not exists\n")
-		fmt.Printf("Creating file")
+		fmt.Println("Creating DB")
 		f, err := os.Create("./cotacao.db")
 		if err != nil {
 			panic(err)
@@ -56,7 +55,7 @@ func main() {
 	defer db.Close()
 
 	sqlStmt := `
-	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, bid text, name text);
+	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, dollar int, name text);
 	`
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
@@ -114,7 +113,7 @@ func insertDB(db *sql.DB, currency *UsdBrl) {
 	ctx, close := context.WithTimeout(ctx, time.Millisecond*10)
 	defer close()
 	log.Println("Inserting record ...")
-	insertDB := `INSERT INTO currency(bid, name) VALUES (?, ?)`
+	insertDB := `INSERT INTO currency(dollar, name) VALUES (?, ?)`
 	data, err := db.PrepareContext(ctx, insertDB)
 	if err != nil {
 		fmt.Println(err)
