@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -26,6 +26,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(body))
 
+	createFile(body)
+
+}
+
+func createFile(body []byte) {
+	f, err := os.Create("./client/cotacao.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	f.Write(body)
 }
