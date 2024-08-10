@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -19,7 +20,7 @@ type UsdBrl struct {
 	Usdbrl struct {
 		Code       string `json:"-"`
 		Codein     string `json:"-"`
-		Name       string `json:"-"`
+		Name       string `json:"name"`
 		High       string `json:"-"`
 		Low        string `json:"-"`
 		VarBid     string `json:"-"`
@@ -30,6 +31,8 @@ type UsdBrl struct {
 		CreateDate string `json:"-"`
 	} `json:"USDBRL"`
 }
+
+var db *sql.DB
 
 func main() {
 	http.HandleFunc("/cotacao", handleCurrency)
@@ -44,16 +47,16 @@ func main() {
 		fmt.Println(f)
 	}
 
-	db, err := sql.Open("sqlite3", "./cotacao.db")
+	conn, err := sql.Open("sqlite3", "./cotacao.db")
 	if err != nil {
 		panic(err)
 	}
+	db = conn
 	fmt.Println("Banco conectado com sucesso...")
 	defer db.Close()
 
 	sqlStmt := `
-	create table foo (id integer not null primary key, name text);
-	delete from foo;
+	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, bid text, name text);
 	`
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
@@ -74,9 +77,11 @@ func handleCurrency(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	insertDB(db, data)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(data.Usdbrl.Bid)
 
 }
 
@@ -102,4 +107,20 @@ func getCurrency(rx context.Context) (data *UsdBrl, err error) {
 	}
 
 	return &currency, err
+}
+
+func insertDB(db *sql.DB, currency *UsdBrl) {
+	ctx := context.Background()
+	ctx, close := context.WithTimeout(ctx, time.Millisecond*10)
+	defer close()
+	log.Println("Inserting record ...")
+	insertDB := `INSERT INTO currency(bid, name) VALUES (?, ?)`
+	data, err := db.PrepareContext(ctx, insertDB)
+	if err != nil {
+		fmt.Println(err)
+	}
+	_, err = data.Exec(currency.Usdbrl.Bid, currency.Usdbrl.Name)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

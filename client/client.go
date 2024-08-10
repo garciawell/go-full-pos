@@ -34,11 +34,11 @@ func getCotacao(ctx context.Context) (body []byte, err error) {
 }
 
 func createFile(body []byte) {
-	f, err := os.Create("./client/cotacao.txt")
+	f, err := os.Create("./cotacao.txt")
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 	fmt.Println("Arquivo criado com sucesso...")
-	f.Write(body)
+	f.Write([]byte("Bid: " + string(body)))
 }
