@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var port = "8080"
@@ -30,6 +34,32 @@ type UsdBrl struct {
 func main() {
 	http.HandleFunc("/cotacao", handleCurrency)
 
+	if _, err := os.Stat("./cotacao.db"); err != nil {
+		fmt.Printf("File not exists\n")
+		fmt.Printf("Creating file")
+		f, err := os.Create("./cotacao.db")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(f)
+	}
+
+	db, err := sql.Open("sqlite3", "./cotacao.db")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Banco conectado com sucesso...")
+	defer db.Close()
+
+	sqlStmt := `
+	create table foo (id integer not null primary key, name text);
+	delete from foo;
+	`
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		fmt.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
 	fmt.Println("Listening port " + port + " ...")
 	http.ListenAndServe("localhost:"+port, nil)
 }
