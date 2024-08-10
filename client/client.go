@@ -24,11 +24,8 @@ func main() {
 func getCotacao(ctx context.Context) (body []byte, err error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:8080/cotacao", nil)
 	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		fmt.Println("Erro ao executar a request")
-	}
-	defer resp.Body.Close()
 	body, err = io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 
 	return body, err
 }
