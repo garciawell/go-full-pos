@@ -28,7 +28,7 @@ type UsdBrl struct {
 }
 
 func main() {
-	http.HandleFunc("/", handleCurrency)
+	http.HandleFunc("/cotacao", handleCurrency)
 
 	fmt.Println("Listening port " + port + " ...")
 	http.ListenAndServe("localhost:"+port, nil)
