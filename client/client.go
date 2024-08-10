@@ -13,6 +13,12 @@ func main() {
 	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*300)
 	defer cancel()
 
+	body := getCotacao(ctx)
+	createFile(body)
+
+}
+
+func getCotacao(ctx context.Context) []byte {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:8080/cotacao", nil)
 	if err != nil {
 		panic(err)
@@ -27,7 +33,7 @@ func main() {
 		panic(err)
 	}
 
-	createFile(body)
+	return body
 
 }
 
