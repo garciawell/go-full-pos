@@ -40,5 +40,5 @@ func createFile(body []byte) {
 	}
 	defer f.Close()
 	fmt.Println("Arquivo criado com sucesso...")
-	f.Write([]byte("Bid: " + string(body)))
+	f.Write([]byte("Dólar: " + string(body)))
 }
