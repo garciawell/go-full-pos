@@ -34,9 +34,7 @@ type UsdBrl struct {
 
 var db *sql.DB
 
-func main() {
-	http.HandleFunc("/cotacao", handleCurrency)
-
+func init() {
 	if _, err := os.Stat("./cotacao.db"); err != nil {
 		fmt.Println("Creating DB")
 		f, err := os.Create("./cotacao.db")
@@ -48,11 +46,11 @@ func main() {
 
 	conn, err := sql.Open("sqlite3", "./cotacao.db")
 	if err != nil {
+		log.Println("TESTE")
 		panic(err)
 	}
 	db = conn
 	fmt.Println("Banco conectado com sucesso...")
-	defer db.Close()
 
 	sql := `
 	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, dollar int, name text);
@@ -62,7 +60,12 @@ func main() {
 		fmt.Printf("%q: %s\n", err, sql)
 		return
 	}
+}
+
+func main() {
+	http.HandleFunc("/cotacao", handleCurrency)
 	fmt.Println("Listening port " + port + " ...")
+	defer db.Close()
 	http.ListenAndServe("localhost:"+port, nil)
 }
 
