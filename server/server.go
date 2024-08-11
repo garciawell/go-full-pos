@@ -54,12 +54,12 @@ func main() {
 	fmt.Println("Banco conectado com sucesso...")
 	defer db.Close()
 
-	sqlStmt := `
+	sql := `
 	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, dollar int, name text);
 	`
-	_, err = db.Exec(sqlStmt)
+	_, err = db.Exec(sql)
 	if err != nil {
-		fmt.Printf("%q: %s\n", err, sqlStmt)
+		fmt.Printf("%q: %s\n", err, sql)
 		return
 	}
 	fmt.Println("Listening port " + port + " ...")
