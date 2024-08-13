@@ -18,17 +18,17 @@ var port = "8080"
 
 type UsdBrl struct {
 	Usdbrl struct {
-		Code       string `json:"-"`
-		Codein     string `json:"-"`
+		Code       string `json:"code"`
+		Codein     string `json:"codein"`
 		Name       string `json:"name"`
-		High       string `json:"-"`
-		Low        string `json:"-"`
-		VarBid     string `json:"-"`
-		PctChange  string `json:"-"`
+		High       string `json:"high"`
+		Low        string `json:"low"`
+		VarBid     string `json:"varBid"`
+		PctChange  string `json:"pctChange"`
 		Bid        string `json:"bid"`
-		Ask        string `json:"-"`
-		Timestamp  string `json:"-"`
-		CreateDate string `json:"-"`
+		Ask        string `json:"ask"`
+		Timestamp  string `json:"timestamp"`
+		CreateDate string `json:"create_date"`
 	} `json:"USDBRL"`
 }
 
@@ -53,7 +53,19 @@ func init() {
 	fmt.Println("Banco conectado com sucesso...")
 
 	sql := `
-	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, dollar int, name text);
+	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, 
+	code text, 
+	codein text, 
+	name text, 
+	hight text, 
+	low text,
+	varBid text,
+	pctChange text,
+	bid text,
+	ask text,
+	timestamp text,
+	create_date text
+	);
 	`
 	_, err = db.Exec(sql)
 	if err != nil {
@@ -116,12 +128,23 @@ func insertDB(db *sql.DB, currency *UsdBrl) {
 	ctx, close := context.WithTimeout(ctx, time.Millisecond*10)
 	defer close()
 	log.Println("Inserting record ...")
-	insertDB := `INSERT INTO currency(dollar, name) VALUES (?, ?)`
+	insertDB := `INSERT INTO currency(code, codeIn, name, hight, low, varBid, pctChange, bid, ask, timestamp, create_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	data, err := db.PrepareContext(ctx, insertDB)
 	if err != nil {
 		fmt.Println(err)
 	}
-	_, err = data.Exec(currency.Usdbrl.Bid, currency.Usdbrl.Name)
+
+	_, err = data.Exec(currency.Usdbrl.Code,
+		currency.Usdbrl.Codein,
+		currency.Usdbrl.Name,
+		currency.Usdbrl.High,
+		currency.Usdbrl.Low,
+		currency.Usdbrl.VarBid,
+		currency.Usdbrl.PctChange,
+		currency.Usdbrl.Bid,
+		currency.Usdbrl.Ask,
+		currency.Usdbrl.Timestamp,
+		currency.Usdbrl.CreateDate)
 	if err != nil {
 		fmt.Println(err)
 	}
