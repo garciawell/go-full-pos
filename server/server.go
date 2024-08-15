@@ -88,7 +88,9 @@ func handleCurrency(w http.ResponseWriter, r *http.Request) {
 
 	data, err := getCurrency(ctx)
 	if err != nil {
-		panic(err)
+		fmt.Println("Timeout request")
+		w.WriteHeader(http.StatusRequestTimeout)
+		return
 	}
 
 	insertDB(db, data)
@@ -102,22 +104,22 @@ func handleCurrency(w http.ResponseWriter, r *http.Request) {
 func getCurrency(rx context.Context) (data *UsdBrl, err error) {
 	req, err := http.NewRequestWithContext(rx, http.MethodGet, "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer res.Body.Close()
 	var currency UsdBrl
 
 	format, err := io.ReadAll(res.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	err = json.Unmarshal(format, &currency)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return &currency, err
