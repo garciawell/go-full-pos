@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/garciawell/go-full-pos/pkg/math"
+	"github.com/garciawell/go-full-pos/25-pkg/math"
 	"github.com/google/uuid"
 )
 
