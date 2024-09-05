@@ -8,24 +8,18 @@ import (
 )
 
 type Category struct {
-	ID   int `gorm:"primarykey"`
-	Name string
+	ID       int `gorm:"primarykey"`
+	Name     string
+	Products []ProductInfo
 }
 
 type ProductInfo struct {
-	ID           int `gorm:"primarykey"`
-	Name         string
-	Price        float64
-	CategoryID   int
-	Category     Category
-	SerialNumber SerialNumber
+	ID         int `gorm:"primarykey"`
+	Name       string
+	Price      float64
+	CategoryID int
+	Category   Category
 	gorm.Model
-}
-
-type SerialNumber struct {
-	ID        int `gorm:"primarykey"`
-	Number    string
-	ProductID int
 }
 
 func main() {
@@ -34,29 +28,29 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&ProductInfo{}, &Category{}, &SerialNumber{})
+	db.AutoMigrate(&ProductInfo{}, &Category{})
 
 	category := Category{Name: "Casa"}
 	db.Create(&category)
 
-	product := ProductInfo{
-		Name:       "Mouse",
-		Price:      1000,
+	db.Create(&ProductInfo{
+		Name:       "Iphone",
+		Price:      1000.50,
 		CategoryID: 1,
-		SerialNumber: SerialNumber{
-			Number:    "123456",
-			ProductID: 1,
-		},
+	})
+
+	var categories []Category
+	err = db.Model(&Category{}).Preload("Products").Find(&categories).Error
+	if err != nil {
+		panic(err)
 	}
 
-	db.Create(&product)
-
-	// create
-	// db.Create(&ProductInfo{
-	// 	Name:  "Iphone",
-	// 	Price: 1000.50,
-	// })
-
+	for _, category := range categories {
+		fmt.Println(category.Name, ":")
+		for _, product := range category.Products {
+			println("-", product.Name)
+		}
+	}
 	// // Create Batch
 	// products := []ProductInfo{
 	// 	{Name: "Notebook", Price: 120},
@@ -74,13 +68,13 @@ func main() {
 	// db.First(&product, "name = ?", "Iphone")
 	// fmt.Println(product)
 
-	var products []ProductInfo
-	// db.Limit(2).Offset(2).Find(&products)
-	db.Preload("Category").Preload("SerialNumber").Find(&products)
+	// var products []ProductInfo
+	// // db.Limit(2).Offset(2).Find(&products)
+	// db.Preload("Category").Preload("SerialNumber").Find(&products)
 
-	for _, p := range products {
-		fmt.Println(p.Name, p.Category.Name, p.SerialNumber.Number)
-	}
+	// for _, p := range products {
+	// 	fmt.Println(p.Name, p.Category.Name)
+	// }
 
 	// var products []ProductInfo
 	// db.Where("price > ?", 1000).Find(&products)
