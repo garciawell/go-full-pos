@@ -7,9 +7,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type Category struct {
+	ID   int `gorm:"primarykey"`
+	Name string
+}
+
 type ProductInfo struct {
-	Name  string
-	Price float64
+	Name       string
+	Price      float64
+	CategoryID int
+	Category   Category
 	gorm.Model
 }
 
@@ -19,7 +26,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&ProductInfo{})
+	db.AutoMigrate(&ProductInfo{}, &Category{})
+
+	// category := Category{Name: "Eletronicos"}
+	// db.Create(&category)
+
+	// db.Create(&ProductInfo{
+	// 	Name:       "Notebook",
+	// 	Price:      1000,
+	// 	CategoryID: category.ID,
+	// })
 
 	// create
 	// db.Create(&ProductInfo{
@@ -44,12 +60,13 @@ func main() {
 	// db.First(&product, "name = ?", "Iphone")
 	// fmt.Println(product)
 
-	// var products []ProductInfo
+	var products []ProductInfo
 	// db.Limit(2).Offset(2).Find(&products)
+	db.Preload("Category").Find(&products)
 
-	// for _, p := range products {
-	// 	fmt.Println(p)
-	// }
+	for _, p := range products {
+		fmt.Println(p.Name, p.Category.Name)
+	}
 
 	// var products []ProductInfo
 	// db.Where("price > ?", 1000).Find(&products)
@@ -62,8 +79,8 @@ func main() {
 	// p.Name = "New Mouse"
 	// db.Save(&p)
 
-	var p2 ProductInfo
-	db.First(&p2, 1)
-	fmt.Println(p2.Name)
-	db.Delete(&p2)
+	// var p2 ProductInfo
+	// db.First(&p2, 1)
+	// fmt.Println(p2.Name)
+	// db.Delete(&p2)
 }
