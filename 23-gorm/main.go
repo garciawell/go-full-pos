@@ -37,16 +37,22 @@ func main() {
 
 	// Select One
 
-	var product ProductInfo
+	// var product ProductInfo
 	// db.First(&product, 1)
 	// fmt.Println(product)
 
-	db.First(&product, "name = ?", "Iphone")
-	fmt.Println(product)
+	// db.First(&product, "name = ?", "Iphone")
+	// fmt.Println(product)
+
+	// var products []ProductInfo
+	// db.Limit(2).Offset(2).Find(&products)
+
+	// for _, p := range products {
+	// 	fmt.Println(p)
+	// }
 
 	var products []ProductInfo
-	db.Find(&products)
-
+	db.Where("price > ?", 1000).Find(&products)
 	for _, p := range products {
 		fmt.Println(p)
 	}
