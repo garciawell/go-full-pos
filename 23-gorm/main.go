@@ -51,9 +51,19 @@ func main() {
 	// 	fmt.Println(p)
 	// }
 
-	var products []ProductInfo
-	db.Where("price > ?", 1000).Find(&products)
-	for _, p := range products {
-		fmt.Println(p)
-	}
+	// var products []ProductInfo
+	// db.Where("price > ?", 1000).Find(&products)
+	// for _, p := range products {
+	// 	fmt.Println(p)
+	// }
+
+	var p ProductInfo
+	db.First(&p, 1)
+	p.Name = "New Mouse"
+	db.Save(&p)
+
+	var p2 ProductInfo
+	db.First(&p2, 1)
+	fmt.Println(p2.Name)
+	db.Delete(p2)
 }
