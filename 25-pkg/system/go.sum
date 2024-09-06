@@ -1,2 +1,4 @@
+github.com/garciawell/go-full-pos/25-pkg/math v0.0.0-20240905231312-e41c5526207a h1:SdTxRvnI0YmcZRvyvwBMkiBEgPH1BH0iR9tJBaZTUhA=
+github.com/garciawell/go-full-pos/25-pkg/math v0.0.0-20240905231312-e41c5526207a/go.mod h1:WM56y+BK00Djytya8xYjpKT0z17qw4lO+ywzQTjde7g=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
