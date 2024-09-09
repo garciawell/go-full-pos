@@ -39,6 +39,7 @@ func TestFindAllProducts(t *testing.T) {
 
 	productDB := NewProduct(db)
 	products, err := productDB.FindAll(1, 10, "asc")
+
 	assert.NoError(t, err)
 	assert.Len(t, products, 10)
 	assert.Equal(t, "Product 1", products[0].Name)
