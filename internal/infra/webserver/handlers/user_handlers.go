@@ -11,6 +11,10 @@ import (
 	"github.com/go-chi/jwtauth"
 )
 
+type Error struct {
+	Message string `json:"message"`
+}
+
 type UserHandler struct {
 	UserDB       database.UserInterface
 	JwtExpiresIn int
@@ -23,6 +27,16 @@ func NewUserHandler(db database.UserInterface, JwtExpiresIn int) *UserHandler {
 	}
 }
 
+// Create user godoc
+// @Summary Create a user
+// @Description Create a user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param user body dto.CreateUserInput true "User requestd"
+// @Success 201 {object} string
+// @Failure 500 {object} Error
+// @Router /users [post]
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user dto.CreateUserInput
 	err := json.NewDecoder(r.Body).Decode(&user)
