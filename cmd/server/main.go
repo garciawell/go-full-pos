@@ -35,14 +35,15 @@ func init() {
 	productHandler = handlers.NewProductHandler(productDB)
 
 	userDB := database.NewUser(db)
-	userHandler = handlers.NewUserHandler(userDB, config.TokenAuthKey, config.JwtExpiresIn)
+	userHandler = handlers.NewUserHandler(userDB, config.JwtExpiresIn)
 }
 
 func main() {
 	r := chi.NewRouter()
+	// r.Use(LogRequest)
 	r.Use(middleware.Logger)
-
-	// jwtVerify
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.WithValue("jwt", conf.TokenAuthKey))
 
 	r.Route("/products", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(conf.TokenAuthKey))
@@ -61,3 +62,10 @@ func main() {
 	http.ListenAndServe(":8000", r)
 
 }
+
+// func LogRequest(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		log.Println(r.Method, r.URL.Path)
+// 		next.ServeHTTP(w, r)
+// 	})
+// }
