@@ -5,16 +5,36 @@ import (
 	"net/http"
 
 	"github.com/garciawell/go-full-pos/apis/configs"
+	_ "github.com/garciawell/go-full-pos/apis/docs"
 	"github.com/garciawell/go-full-pos/apis/internal/entity"
 	"github.com/garciawell/go-full-pos/apis/internal/infra/database"
 	"github.com/garciawell/go-full-pos/apis/internal/infra/webserver/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/jwtauth"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
+// @title          Go Experts API
+// @version         1.0
+// @description     This is a sample server celler server.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8000
+// @BasePath  /
+
+// @securityDefinitions.apikey  ApiKeyAuth
+// @in header
+// @name Authorization
 var productHandler *handlers.ProductHandler
 var userHandler *handlers.UserHandler
 var conf *configs.Conf
@@ -59,6 +79,8 @@ func main() {
 	r.Post("/users/generate-token", userHandler.GetJWT)
 
 	fmt.Println("Server is running on port 8000...")
+
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
 	http.ListenAndServe(":8000", r)
 
 }
