@@ -1,0 +1,32 @@
+POST http://localhost:8000/products
+Content-Type: application/json
+
+{
+   "name": "My Product",
+    "price": 100
+}
+
+### GET ONE
+
+GET http://localhost:8000/products/87b34487-0534-42c0-8582-41359f512f48
+Content-Type: application/json
+
+### GET ALL
+GET http://localhost:8000/products
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RlQGdtYWlsLmNvbSIsImV4cCI6MTcyNTkzNzE3MCwic3ViIjoiZGUxZmNkNjQtYjk2MS00Y2JhLWFlOGYtMzkxMmE5YTFlN2EwIn0.E9sWb6S_q6UAClSh_fbHdfH3y7Z87Ep-DUZ7G9HU9u8
+
+
+
+### UPDATE
+PUT http://localhost:8000/products/87b34487-0534-42c0-8582-41359f512f48
+Content-Type: application/json
+
+{
+   "name": "My Product updated",
+    "price": 1000
+}
+
+### DELETE
+DELETE  http://localhost:8000/products/87b34487-0534-42c0-8582-41359f512f48
+Content-Type: application/json
