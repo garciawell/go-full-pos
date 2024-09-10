@@ -18,7 +18,7 @@ var productHandler *handlers.ProductHandler
 var userHandler *handlers.UserHandler
 
 func init() {
-	_, err := configs.LoadConfig(".")
+	config, err := configs.LoadConfig(".")
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +32,7 @@ func init() {
 	productHandler = handlers.NewProductHandler(productDB)
 
 	userDB := database.NewUser(db)
-	userHandler = handlers.NewUserHandler(userDB)
+	userHandler = handlers.NewUserHandler(userDB, config.TokenAuthKey, config.JwtExpiresIn)
 }
 
 func main() {
@@ -46,6 +46,7 @@ func main() {
 	r.Get("/products", productHandler.GetProducts)
 
 	r.Post("/users", userHandler.CreateUser)
+	r.Post("/users/generate-token", userHandler.GetJWT)
 
 	fmt.Println("Server is running on port 8000...")
 	http.ListenAndServe(":8000", r)
