@@ -10,15 +10,18 @@ import (
 	"github.com/garciawell/go-full-pos/apis/internal/infra/webserver/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/jwtauth"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 var productHandler *handlers.ProductHandler
 var userHandler *handlers.UserHandler
+var conf *configs.Conf
 
 func init() {
 	config, err := configs.LoadConfig(".")
+	conf = config
 	if err != nil {
 		panic(err)
 	}
@@ -39,11 +42,17 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	r.Post("/products", productHandler.CreateProduct)
-	r.Get("/products/{id}", productHandler.GetProduct)
-	r.Put("/products/{id}", productHandler.UpdateProduct)
-	r.Delete("/products/{id}", productHandler.DeleteProduct)
-	r.Get("/products", productHandler.GetProducts)
+	// jwtVerify
+
+	r.Route("/products", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(conf.TokenAuthKey))
+		r.Use(jwtauth.Authenticator)
+		r.Post("/", productHandler.CreateProduct)
+		r.Get("/", productHandler.GetProducts)
+		r.Get("/{id}", productHandler.GetProduct)
+		r.Put("/{id}", productHandler.UpdateProduct)
+		r.Delete("//{id}", productHandler.DeleteProduct)
+	})
 
 	r.Post("/users", userHandler.CreateUser)
 	r.Post("/users/generate-token", userHandler.GetJWT)
