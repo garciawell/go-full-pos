@@ -38,6 +38,8 @@ func main() {
 	r.Post("/products", productHandler.CreateProduct)
 	r.Get("/products/{id}", productHandler.GetProduct)
 	r.Put("/products/{id}", productHandler.UpdateProduct)
+	r.Delete("/products/{id}", productHandler.DeleteProduct)
+	r.Get("/products", productHandler.GetProducts)
 
 	fmt.Println("Server is running on port 8000...")
 	http.ListenAndServe(":8000", r)
