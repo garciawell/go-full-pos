@@ -2,31 +2,34 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
-func task(name string) {
+func task(name string, wg *sync.WaitGroup) {
 	for i := 0; i < 10; i++ {
 		fmt.Printf("%d: Task %s is running\n", i, name)
 		time.Sleep(1 * time.Second)
+		wg.Done()
 	}
 }
 
 // Thread main
 func main() {
+	waitGroup := sync.WaitGroup{}
+	waitGroup.Add(25)
 	// Thread 2
-	go task("A")
-
+	go task("A", &waitGroup)
 	// Thread 3
-	go task("B")
+	go task("B", &waitGroup)
 
 	// Thread 4
 	go func() {
 		for i := 0; i < 5; i++ {
 			fmt.Printf("%d: Task C is running\n", i)
 			time.Sleep(1 * time.Second)
+			waitGroup.Done()
 		}
 	}()
-
-	time.Sleep(15 * time.Second)
+	waitGroup.Wait()
 }
