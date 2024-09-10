@@ -15,6 +15,7 @@ import (
 )
 
 var productHandler *handlers.ProductHandler
+var userHandler *handlers.UserHandler
 
 func init() {
 	_, err := configs.LoadConfig(".")
@@ -29,6 +30,9 @@ func init() {
 	db.AutoMigrate(&entity.User{}, &entity.Product{})
 	productDB := database.NewProduct(db)
 	productHandler = handlers.NewProductHandler(productDB)
+
+	userDB := database.NewUser(db)
+	userHandler = handlers.NewUserHandler(userDB)
 }
 
 func main() {
@@ -40,6 +44,8 @@ func main() {
 	r.Put("/products/{id}", productHandler.UpdateProduct)
 	r.Delete("/products/{id}", productHandler.DeleteProduct)
 	r.Get("/products", productHandler.GetProducts)
+
+	r.Post("/users", userHandler.CreateUser)
 
 	fmt.Println("Server is running on port 8000...")
 	http.ListenAndServe(":8000", r)
