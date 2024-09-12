@@ -15,17 +15,19 @@ func main() {
 		c2 <- 1
 	}()
 
-	select {
-	case ms1 := <-c1:
-		println("c1 received", ms1)
-	case ms2 := <-c2:
-		println("c2 received", ms2)
+	for {
+		select {
+		case ms1 := <-c1: //rabit mq
+			println("c1 received", ms1)
+		case ms2 := <-c2: //rabit kafka
+			println("c2 received", ms2)
 
-	case <-time.After(time.Second * 23):
-		println("timeout")
+		case <-time.After(time.Second * 23):
+			println("timeout")
 
-	default:
-		println("default")
+		default:
+			println("default")
+		}
 	}
 
 }
