@@ -53,7 +53,7 @@ func getCepViaCep(cep string, cn chan<- CepVia) {
 	resp, err := http.Get("https://viacep.com.br/ws/" + cep + "/json/")
 	body, err := formatReturn(resp, err)
 	if err != nil {
-		log.Println("Error fetching BrasilApi data:", err)
+		log.Println("Error fetching ViaCepApi data:", err)
 		return
 	}
 	var c CepVia
