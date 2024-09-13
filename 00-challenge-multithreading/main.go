@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type Cep interface {
+	SetName(name string)
+}
+
 type CepVia struct {
 	Name        string `json:"name"`
 	Cep         string `json:"cep"`
@@ -36,6 +40,14 @@ type CepBrasil struct {
 	Service      string `json:"service"`
 }
 
+func (c *CepVia) SetName(name string) {
+	c.Name = name
+}
+
+func (c *CepBrasil) SetName(name string) {
+	c.Name = name
+}
+
 func formatReturn(resp *http.Response, err error) ([]byte, error) {
 	if err != nil {
 		return nil, err
@@ -49,46 +61,32 @@ func formatReturn(resp *http.Response, err error) ([]byte, error) {
 	return body, nil
 }
 
-func getCepViaCep(cep string, cn chan<- CepVia) {
-	defer close(cn)
-	resp, err := http.Get("https://viacep.com.br/ws/" + cep + "/json/")
+func getCep[T Cep](url string, name string, cn chan<- T) {
+	resp, err := http.Get(url)
 	body, err := formatReturn(resp, err)
 	if err != nil {
-		log.Println("Error fetching ViaCepApi data:", err)
+		log.Println("Error reading response body:", err)
 		return
 	}
-	var c CepVia
-	err = json.Unmarshal(body, &c)
-	if err != nil {
-		log.Println("Error unmarshalling BrasilApi data:", err)
-		return
-	}
-	c.Name = "ViaCep"
-	cn <- c
-}
 
-func getCepBrasilApi(cep string, cn chan<- CepBrasil) {
-	defer close(cn)
-	resp, err := http.Get("https://brasilapi.com.br/api/cep/v1/" + cep)
-	body, err := formatReturn(resp, err)
-	if err != nil {
-		panic(err)
-	}
-	var c CepBrasil
+	var c T
 	err = json.Unmarshal(body, &c)
 	if err != nil {
-		panic(err)
+		log.Println("Error unmarshalling data:", err)
+		return
 	}
-	c.Name = "BrasilApi"
+
+	c.SetName(name)
 	cn <- c
+	close(cn)
 }
 
 func main() {
-	cn1 := make(chan CepVia)
-	cn2 := make(chan CepBrasil)
-
-	go getCepViaCep("01153000", cn1)
-	go getCepBrasilApi("01153000", cn2)
+	cn1 := make(chan *CepVia)
+	cn2 := make(chan *CepBrasil)
+	cep := "01153000"
+	go getCep[*CepVia]("https://viacep.com.br/ws/"+cep+"/json/", "ViaCep", cn1)
+	go getCep[*CepBrasil]("https://brasilapi.com.br/api/cep/v1/"+cep+"", "BrasilApi", cn2)
 
 	select {
 	case res := <-cn1:
