@@ -50,6 +50,7 @@ func formatReturn(resp *http.Response, err error) ([]byte, error) {
 }
 
 func getCepViaCep(cep string, cn chan<- CepVia) {
+	defer close(cn)
 	resp, err := http.Get("https://viacep.com.br/ws/" + cep + "/json/")
 	body, err := formatReturn(resp, err)
 	if err != nil {
@@ -67,6 +68,7 @@ func getCepViaCep(cep string, cn chan<- CepVia) {
 }
 
 func getCepBrasilApi(cep string, cn chan<- CepBrasil) {
+	defer close(cn)
 	resp, err := http.Get("https://brasilapi.com.br/api/cep/v1/" + cep)
 	body, err := formatReturn(resp, err)
 	if err != nil {
