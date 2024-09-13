@@ -80,6 +80,24 @@ func (suite *EventDispatcherTestSuite) TestEventDispatcher_RegisterErr() {
 	suite.Equal(ErrHandlerNotFound, err)
 	suite.Equal(1, len(suite.EventDispatcher.handlers[suite.event.GetName()]))
 }
+func (suite *EventDispatcherTestSuite) TestEventDispatcher_Clear() {
+	// Event 1
+	err := suite.EventDispatcher.Register(suite.event.GetName(), &suite.handler)
+	suite.Nil(err)
+	suite.Equal(1, len(suite.EventDispatcher.handlers[suite.event.GetName()]))
+
+	err = suite.EventDispatcher.Register(suite.event.GetName(), &suite.handler2)
+	suite.Nil(err)
+	suite.Equal(2, len(suite.EventDispatcher.handlers[suite.event.GetName()]))
+
+	// Event 2
+	err = suite.EventDispatcher.Register(suite.event2.GetName(), &suite.handler3)
+	suite.Nil(err)
+	suite.Equal(1, len(suite.EventDispatcher.handlers[suite.event2.GetName()]))
+
+	suite.EventDispatcher.Clear()
+	suite.Equal(0, len(suite.EventDispatcher.handlers))
+}
 
 func TestSuite(t *testing.T) {
 	suite.Run(t, new(EventDispatcherTestSuite))
