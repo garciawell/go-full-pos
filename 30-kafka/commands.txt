@@ -1,0 +1,6 @@
+
+Executar container: docker exec -it 30-kafka-kafka-1 bash
+Descrever topico: kafka-topics --bootstrap-server=localhost:9092 --topic=teste --describe
+PRODUCTE MESSAGES:  kafka-console-producer --bootstrap-server=localhost:9092 --topic=teste
+GET MESSAGES: kafka-console-consumer --bootstrap-server=localhost:9092 --topic=teste --from-beginning
+CONSUMER GROUP:  kafka-console-consumer --bootstrap-server=localhost:9092 --topic=teste --group=x
