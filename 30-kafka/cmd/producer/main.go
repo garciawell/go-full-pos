@@ -3,18 +3,31 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"golang.org/x/exp/rand"
 )
 
 func main() {
-	fmt.Println("Kafka Producer")
 	producer := NewKafkaProducer()
-	err := Publish("mensagem 1", "teste", producer, nil)
-	if err != nil {
-		log.Println("EPAA")
+	rand.Seed(uint64(time.Now().UnixNano()))
+	randomNumber := rand.Intn(100)
+
+	deliveryCh := make(chan kafka.Event)
+
+	Publish(fmt.Sprintf("Mensagem %d", randomNumber), "teste", producer, nil, deliveryCh)
+
+	e := <-deliveryCh
+	msg := e.(*kafka.Message)
+
+	if msg.TopicPartition.Error != nil {
+		fmt.Println("Erro ao enviar a mensagem", msg.TopicPartition.Error)
+		return
+	} else {
+		fmt.Println("Mensagem entregue", msg.TopicPartition)
 	}
-	log.Println("Producer criado")
+
 	producer.Flush(1000)
 }
 
@@ -30,7 +43,7 @@ func NewKafkaProducer() *kafka.Producer {
 	return p
 }
 
-func Publish(msg string, topic string, producer *kafka.Producer, key []byte) error {
+func Publish(msg string, topic string, producer *kafka.Producer, key []byte, deliveryCh chan kafka.Event) error {
 
 	message := &kafka.Message{
 		Value:          []byte(msg),
@@ -38,7 +51,7 @@ func Publish(msg string, topic string, producer *kafka.Producer, key []byte) err
 		Key:            key,
 	}
 
-	err := producer.Produce(message, nil)
+	err := producer.Produce(message, deliveryCh)
 	if err != nil {
 		return err
 	}
