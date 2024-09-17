@@ -16,10 +16,10 @@ func main() {
 
 	deliveryCh := make(chan kafka.Event)
 
-	Publish(fmt.Sprintf("Mensagem %d", randomNumber), "teste", producer, nil, deliveryCh)
+	Publish(fmt.Sprintf("Transferiu %d", randomNumber), "teste", producer, []byte("transferencia2"), deliveryCh)
 
 	go DeliveryReport(deliveryCh)
-	producer.Flush(10000)
+	producer.Flush(5000)
 }
 
 func NewKafkaProducer() *kafka.Producer {
