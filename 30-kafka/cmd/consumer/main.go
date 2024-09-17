@@ -10,8 +10,9 @@ func main() {
 
 	configMap := &kafka.ConfigMap{
 		"bootstrap.servers": "30-kafka-kafka-1:9092",
-		"client.id":         "goapp-consumer",
+		"client.id":         "goapp2-consumer",
 		"group.id":          "goapp-group",
+		"auto.offset.reset": "earliest",
 	}
 
 	c, err := kafka.NewConsumer(configMap)
