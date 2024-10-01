@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	rabbitmq "github.com/garciawell/go-full-pos/events/pkg/rabbitMQ"
+	rabbitmq "github.com/garciawell/go-full-pos/29-eventos/events/pkg/rabbitMQ"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 

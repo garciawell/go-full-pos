@@ -1,4 +1,4 @@
-module github.com/garciawell/go-full-pos/events
+module github.com/garciawell/go-full-pos/29-eventos/events
 
 go 1.21.0
 
