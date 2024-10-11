@@ -8,4 +8,5 @@ import "github.com/garciawell/go-full-pos/33-graphql/internal/database"
 
 type Resolver struct {
 	CategoryDB *database.Category
+	CourseDB   *database.Couse
 }
