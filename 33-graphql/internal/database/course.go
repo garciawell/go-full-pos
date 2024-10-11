@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type Couse struct {
+type Course struct {
 	db          *sql.DB
 	ID          string
 	Name        string
@@ -14,17 +14,17 @@ type Couse struct {
 	CategoryID  string
 }
 
-func NewCourse(db *sql.DB) *Couse {
-	return &Couse{db: db}
+func NewCourse(db *sql.DB) *Course {
+	return &Course{db: db}
 }
 
-func (c *Couse) Create(name string, description string, categoryID string) (*Couse, error) {
+func (c *Course) Create(name string, description string, categoryID string) (*Course, error) {
 	id := uuid.New().String()
-	_, err := c.db.Exec("INSERT INTO courses (id, name, description, category_id) VALUES (?, ?, ?, ?)", id, name, description, categoryID)
+	_, err := c.db.Exec("INSERT INTO Courses (id, name, description, category_id) VALUES (?, ?, ?, ?)", id, name, description, categoryID)
 	if err != nil {
 		return nil, err
 	}
-	return &Couse{
+	return &Course{
 		ID:          id,
 		Name:        name,
 		Description: description,
@@ -32,16 +32,35 @@ func (c *Couse) Create(name string, description string, categoryID string) (*Cou
 	}, nil
 }
 
-func (c *Couse) FindAll() ([]*Couse, error) {
-	rows, err := c.db.Query("SELECT id, name, description, category_id FROM courses")
+func (c *Course) FindAll() ([]*Course, error) {
+	rows, err := c.db.Query("SELECT id, name, description, category_id FROM Courses")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var courses []*Couse
+	var courses []*Course
 	for rows.Next() {
-		var course Couse
+		var course Course
+		err := rows.Scan(&course.ID, &course.Name, &course.Description, &course.CategoryID)
+		if err != nil {
+			return nil, err
+		}
+		courses = append(courses, &course)
+	}
+	return courses, nil
+}
+
+func (c *Course) FindByCategoryID(categoryID string) ([]*Course, error) {
+	rows, err := c.db.Query("SELECT id, name, description, category_id FROM Courses WHERE category_id = ?", categoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var courses []*Course
+	for rows.Next() {
+		var course Course
 		err := rows.Scan(&course.ID, &course.Name, &course.Description, &course.CategoryID)
 		if err != nil {
 			return nil, err
