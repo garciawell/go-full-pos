@@ -24,6 +24,24 @@ to quickly create a Cobra application.`,
 		exist, _ := cmd.Flags().GetBool("exists")
 		fmt.Println("Bool called", exist)
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("category pre run")
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("category post run")
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("category called", category)
+		return nil
+	},
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("category pre run")
+		return nil
+	},
+	PostRunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("category post run")
+		return nil
+	},
 }
 
 var category string
