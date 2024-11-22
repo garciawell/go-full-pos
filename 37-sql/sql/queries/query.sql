@@ -14,3 +14,7 @@ UPDATE categories SET name = ?, description = ? WHERE id = ?;
 
 -- name: DeleteCategory :exec
 DELETE FROM categories WHERE id = ?;
+
+-- name: CreateCrouse :exec
+INSERT INTO courses (id, name, description, category_id, price) 
+VALUES (?, ?, ?, ?, ?);
