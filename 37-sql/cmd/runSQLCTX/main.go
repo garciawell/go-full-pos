@@ -7,7 +7,6 @@ import (
 
 	"github.com/garciawell/go-full-pos/37-sql/internal/db"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/google/uuid"
 )
 
 type CourseDB struct {
@@ -91,22 +90,33 @@ func main() {
 	}
 	defer dbConn.Close()
 
-	courseArgs := CourseParams{
-		ID:          uuid.New().String(),
-		Name:        "Go",
-		Description: sql.NullString{String: "Go programming language", Valid: true},
-		Price:       100.95,
-	}
+	queries := db.New(dbConn)
 
-	categoryArgs := CategoryParams{
-		ID:          uuid.New().String(),
-		Name:        "Programming",
-		Description: sql.NullString{String: "Programming category", Valid: true},
-	}
-
-	courseDB := NewCourseDB(dbConn)
-	err = courseDB.CreateCourseAndCategory(ctx, categoryArgs, courseArgs)
+	courses, err := queries.ListCourses(ctx)
 	if err != nil {
 		panic(err)
 	}
+
+	for _, course := range courses {
+		fmt.Printf("Category: %s, Course ID: %s, Course Name: %s, Course Price: %f\n", course.CategoryName, course.ID, course.Name, course.Price)
+	}
+
+	// courseArgs := CourseParams{
+	// 	ID:          uuid.New().String(),
+	// 	Name:        "Go",
+	// 	Description: sql.NullString{String: "Go programming language", Valid: true},
+	// 	Price:       100.95,
+	// }
+
+	// categoryArgs := CategoryParams{
+	// 	ID:          uuid.New().String(),
+	// 	Name:        "Programming",
+	// 	Description: sql.NullString{String: "Programming category", Valid: true},
+	// }
+
+	// courseDB := NewCourseDB(dbConn)
+	// err = courseDB.CreateCourseAndCategory(ctx, categoryArgs, courseArgs)
+	// if err != nil {
+	// 	panic(err)
+	// }
 }
