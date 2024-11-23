@@ -1,2 +1,2 @@
 run:
-	go run cmd/ordersystem/main.go
+	cd cmd/ordersystem && go run main.go wire_gen.go
