@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/garciawell/go-full-pos/39-DI/product"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -15,11 +14,7 @@ func main() {
 	}
 	defer db.Close()
 
-	// Create a repository
-	repository := product.NewProductRepository(db)
-
-	// Create a useCase
-	useCase := product.NewProductUseCase(repository)
+	useCase := NewUseCase(db)
 
 	product, err := useCase.GetProduct(1)
 	if err != nil {
