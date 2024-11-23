@@ -1,4 +1,4 @@
-module github.com/devfullcycle/20-CleanArch
+module github.com/garciawell/go-full-pos/40-clean-arch
 
 go 1.19
 

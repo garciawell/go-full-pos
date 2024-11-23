@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/devfullcycle/20-CleanArch/internal/entity"
+	"github.com/garciawell/go-full-pos/40-clean-arch/internal/entity"
 	"github.com/stretchr/testify/suite"
 
 	// sqlite3
