@@ -8,4 +8,5 @@ import "github.com/garciawell/go-full-pos/00-challenge-clean-arch/internal/useca
 
 type Resolver struct {
 	CreateOrderUseCase usecase.CreateOrderUseCase
+	ListOrderUseCase   usecase.ListOrderUseCase
 }
