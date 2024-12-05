@@ -3,3 +3,10 @@ run:
 
 generateGraphQL:
 	cd internal/infra/graph && go run github.com/99designs/gqlgen generate
+
+generateProto:
+	protoc --go_out=. --go-grpc_out=. internal/infra/grpc/protofiles/order.proto
+
+
+evans:
+	evans internal/infra/grpc/protofiles/order.proto -p 50051

@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	"fmt"
-
 	"github.com/garciawell/go-full-pos/00-challenge-clean-arch/internal/entity"
 )
 
@@ -17,7 +15,6 @@ func NewListOrderUseCase(orderRepository entity.OrderRepositoryInterface) *ListO
 }
 
 func (u *ListOrderUseCase) Execute() ([]entity.Order, error) {
-	fmt.Println("AMARELO")
 	data, err := u.OrderRepository.FindAll()
 	if err != nil {
 		return nil, err
