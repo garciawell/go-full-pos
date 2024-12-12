@@ -10,3 +10,12 @@ generateProto:
 
 evans:
 	evans internal/infra/grpc/protofiles/order.proto -p 50051
+
+migrateCreate:
+	migrate create -ext=sql -dir=internal/infra/database/migrations -seq init
+
+migrateUp:
+	migrate -path internal/infra/database/migrations -database "mysql://root:root@tcp(localhost:3306)/orders" -verbose up
+
+migrateDown:
+	migrate -path internal/infra/database/migrations -database "mysql://root:root@tcp(localhost:3306)/orders" -verbose down
