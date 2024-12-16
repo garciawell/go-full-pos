@@ -7,7 +7,7 @@ RUN GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o challenge cmd/ordersys
 FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /app/challenge .
-COPY --from=builder /app/cmd/ordersystem/.env .
+COPY --from=builder /app/cmd/ordersystem/.env.example .env
 
 
 RUN apk --no-cache add ca-certificates
