@@ -25,3 +25,30 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      - mysql
+    volumes:
+      - ./internal/infra/database/migrations:/database
+    command:
+      [ "-path", "/database", "-database",  "mysql://root:root@tcp(mysql:3306)/orders", "up"]
+      
+
+  challenge:
+    container_name: challenge
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      DB_HOST: mysql
+    ports:
+      - "8000:8000" # REST
+      - "8080:8080" # GraphQL
+      - "50051:50051" # gRPC
+    depends_on:
+      - mysql
+      - rabbitmq
+
