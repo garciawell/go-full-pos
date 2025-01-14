@@ -82,12 +82,17 @@ func getAddressByCep(w http.ResponseWriter, cep string) CEP {
 	req, err := http.Get("https://viacep.com.br/ws/" + cep + "/json")
 
 	if len(cep) != 8 {
-		http.Error(w, "CEP inválido", http.StatusUnprocessableEntity)
+		// JSON error response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(map[string]string{"error": "CEP inválido"})
 		return CEP{}
 	}
 
 	if req.StatusCode == 400 {
-		http.Error(w, "CEP não encontrado", http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "CEP não encontrado"})
 		return CEP{}
 	}
 
@@ -107,7 +112,9 @@ func getAddressByCep(w http.ResponseWriter, cep string) CEP {
 	}
 
 	if data.Localidade == "" {
-		http.Error(w, "Endereço não encontrado", http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Endereço não encontrado"})
 		return CEP{}
 	}
 
