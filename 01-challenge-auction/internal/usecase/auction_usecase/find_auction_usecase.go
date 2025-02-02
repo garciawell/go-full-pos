@@ -5,6 +5,7 @@ import (
 
 	"github.com/garciawell/go-challenge-auction/internal/entity/auction_entity"
 	internal_error "github.com/garciawell/go-challenge-auction/internal/internal_erro"
+	"github.com/garciawell/go-challenge-auction/internal/usecase/bid_usecase"
 )
 
 func (au *AuctionUseCase) FindAuctionById(ctx context.Context, id string) (AuctionOutputDTO, *internal_error.InternalError) {
@@ -46,4 +47,42 @@ func (au *AuctionUseCase) FindAuctions(ctx context.Context, status AuctionStatus
 	}
 
 	return auctionOutputs, nil
+}
+
+func (au *AuctionUseCase) FindWinningBidByAuctionId(ctx context.Context, id string) (*WiiningBidOutputDTO, *internal_error.InternalError) {
+	auction, err := au.auctionRepositoryInterface.FindAuctionById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	bidWinning, err := au.bidRepositoryInterface.FindWinningBidByAuctionId(ctx, auction.Id)
+
+	auctionOutputDTO := AuctionOutputDTO{
+		Id:          auction.Id,
+		ProductName: auction.ProductName,
+		Category:    auction.Category,
+		Description: auction.Description,
+		Condition:   ProductCondition(auction.Condition),
+		Status:      AuctionStatus(auction.Status),
+		Timestamp:   auction.Timestamp,
+	}
+	if err != nil {
+		return &WiiningBidOutputDTO{
+			Auction: auctionOutputDTO,
+			Bid:     nil,
+		}, nil
+	}
+
+	bidOutputDTO := &bid_usecase.BidOutputDTO{
+		Id:        bidWinning.Id,
+		AuctionId: bidWinning.AuctionId,
+		UserId:    bidWinning.UserId,
+		Amount:    bidWinning.Amount,
+		Timestamp: bidWinning.Timestamp,
+	}
+
+	return &WiiningBidOutputDTO{
+		Auction: auctionOutputDTO,
+		Bid:     bidOutputDTO,
+	}, nil
 }

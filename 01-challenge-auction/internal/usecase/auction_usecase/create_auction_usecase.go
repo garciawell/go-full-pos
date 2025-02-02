@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/garciawell/go-challenge-auction/internal/entity/auction_entity"
+	"github.com/garciawell/go-challenge-auction/internal/entity/bid_entity"
 	internal_error "github.com/garciawell/go-challenge-auction/internal/internal_erro"
+	"github.com/garciawell/go-challenge-auction/internal/usecase/bid_usecase"
 )
 
 type AuctionInputDTO struct {
@@ -25,11 +27,17 @@ type AuctionOutputDTO struct {
 	Timestamp   time.Time        `json:"timestamp" time_format:"2006-01-02T15:04:05Z07:00"`
 }
 
+type WiiningBidOutputDTO struct {
+	Auction AuctionOutputDTO          `json:"auction"`
+	Bid     *bid_usecase.BidOutputDTO `json:"bid, omitempty"`
+}
+
 type ProductCondition int64
 type AuctionStatus int64
 
 type AuctionUseCase struct {
 	auctionRepositoryInterface auction_entity.AuctionRepositoryInterface
+	bidRepositoryInterface     bid_entity.BidEntityRepository
 }
 
 func (au *AuctionUseCase) CreateAuction(ctx context.Context, auctionInput AuctionInputDTO) *internal_error.InternalError {
