@@ -3,6 +3,7 @@ package auction
 import (
 	"context"
 
+	"github.com/garciawell/go-challenge-auction/config/logger"
 	"github.com/garciawell/go-challenge-auction/internal/entity/auction_entity"
 	internal_error "github.com/garciawell/go-challenge-auction/internal/internal_erro"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,28 +18,31 @@ type AuctionEntityMongo struct {
 	Status      auction_entity.AuctionStatus    `bson:"status"`
 	Timestamp   int64                           `bson:"timestamp"`
 }
-
 type AuctionRepository struct {
 	Collection *mongo.Collection
 }
 
-func NewAuctionRepository(collection *mongo.Database) *AuctionRepository {
-	return &AuctionRepository{Collection: collection.Collection("auctions")}
+func NewAuctionRepository(database *mongo.Database) *AuctionRepository {
+	return &AuctionRepository{
+		Collection: database.Collection("auctions"),
+	}
 }
 
-func (repo *AuctionRepository) CreateAuction(ctx context.Context, auction *auction_entity.Auction) *internal_error.InternalError {
-	auctionMongo := &AuctionEntityMongo{
-		Id:          auction.Id,
-		ProductName: auction.ProductName,
-		Category:    auction.Category,
-		Description: auction.Description,
-		Condition:   auction.Condition,
-		Status:      auction.Status,
-		Timestamp:   auction.Timestamp.Unix(),
+func (ar *AuctionRepository) CreateAuction(
+	ctx context.Context,
+	auctionEntity *auction_entity.Auction) *internal_error.InternalError {
+	auctionEntityMongo := &AuctionEntityMongo{
+		Id:          auctionEntity.Id,
+		ProductName: auctionEntity.ProductName,
+		Category:    auctionEntity.Category,
+		Description: auctionEntity.Description,
+		Condition:   auctionEntity.Condition,
+		Status:      auctionEntity.Status,
+		Timestamp:   auctionEntity.Timestamp.Unix(),
 	}
-
-	_, err := repo.Collection.InsertOne(nil, auctionMongo)
+	_, err := ar.Collection.InsertOne(ctx, auctionEntityMongo)
 	if err != nil {
+		logger.Error("Error trying to insert auction", err)
 		return internal_error.NewInternalServerError("Error trying to insert auction")
 	}
 

@@ -3,6 +3,7 @@ package auction
 import (
 	"context"
 	"fmt"
+
 	"time"
 
 	"github.com/garciawell/go-challenge-auction/config/logger"
@@ -12,66 +13,71 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (repo *AuctionRepository) FindAuctionById(ctx context.Context, id string) (*auction_entity.Auction, *internal_error.InternalError) {
+func (ar *AuctionRepository) FindAuctionById(
+	ctx context.Context, id string) (*auction_entity.Auction, *internal_error.InternalError) {
 	filter := bson.M{"_id": id}
-	var auctionMongo AuctionEntityMongo
-	err := repo.Collection.FindOne(ctx, filter).Decode(&auctionMongo)
-	if err != nil {
+
+	var auctionEntityMongo AuctionEntityMongo
+	if err := ar.Collection.FindOne(ctx, filter).Decode(&auctionEntityMongo); err != nil {
 		logger.Error(fmt.Sprintf("Error trying to find auction by id = %s", id), err)
-		return nil, internal_error.NewNotFoundError("Auction not found")
+		return nil, internal_error.NewInternalServerError("Error trying to find auction by id")
 	}
 
-	auction := &auction_entity.Auction{
-		Id:          auctionMongo.Id,
-		ProductName: auctionMongo.ProductName,
-		Category:    auctionMongo.Category,
-		Description: auctionMongo.Description,
-		Condition:   auctionMongo.Condition,
-		Status:      auctionMongo.Status,
-		Timestamp:   time.Unix(auctionMongo.Timestamp, 0),
-	}
-
-	return auction, nil
+	return &auction_entity.Auction{
+		Id:          auctionEntityMongo.Id,
+		ProductName: auctionEntityMongo.ProductName,
+		Category:    auctionEntityMongo.Category,
+		Description: auctionEntityMongo.Description,
+		Condition:   auctionEntityMongo.Condition,
+		Status:      auctionEntityMongo.Status,
+		Timestamp:   time.Unix(auctionEntityMongo.Timestamp, 0),
+	}, nil
 }
 
-func (repo *AuctionRepository) FindAuctions(ctx context.Context, status auction_entity.AuctionStatus, category, productName string) ([]*auction_entity.Auction, *internal_error.InternalError) {
+func (repo *AuctionRepository) FindAuctions(
+	ctx context.Context,
+	status auction_entity.AuctionStatus,
+	category string,
+	productName string) ([]auction_entity.Auction, *internal_error.InternalError) {
 	filter := bson.M{}
 
 	if status != 0 {
 		filter["status"] = status
 	}
+
 	if category != "" {
 		filter["category"] = category
 	}
+
 	if productName != "" {
 		filter["productName"] = primitive.Regex{Pattern: productName, Options: "i"}
 	}
 
 	cursor, err := repo.Collection.Find(ctx, filter)
 	if err != nil {
-		logger.Error("Error trying to find auctions", err)
-		return nil, internal_error.NewInternalServerError("Error trying to find auctions")
+		logger.Error("Error finding auctions", err)
+		return nil, internal_error.NewInternalServerError("Error finding auctions")
 	}
 	defer cursor.Close(ctx)
 
 	var auctionsMongo []AuctionEntityMongo
 	if err := cursor.All(ctx, &auctionsMongo); err != nil {
-		logger.Error("Error trying to find auctions", err)
-		return nil, internal_error.NewInternalServerError("Error trying to find auctions")
+		logger.Error("Error decoding auctions", err)
+		return nil, internal_error.NewInternalServerError("Error decoding auctions")
 	}
 
-	var auctionEntity []*auction_entity.Auction
-	for _, auctionMongo := range auctionsMongo {
-		auction := &auction_entity.Auction{
-			Id:          auctionMongo.Id,
-			ProductName: auctionMongo.ProductName,
-			Category:    auctionMongo.Category,
-			Description: auctionMongo.Description,
-			Condition:   auctionMongo.Condition,
-			Status:      auctionMongo.Status,
-			Timestamp:   time.Unix(auctionMongo.Timestamp, 0),
-		}
-		auctionEntity = append(auctionEntity, auction)
+	var auctionsEntity []auction_entity.Auction
+	for _, auction := range auctionsMongo {
+		auctionsEntity = append(auctionsEntity, auction_entity.Auction{
+			Id:          auction.Id,
+			ProductName: auction.ProductName,
+			Category:    auction.Category,
+			Status:      auction.Status,
+			Description: auction.Description,
+			Condition:   auction.Condition,
+			Timestamp:   time.Unix(auction.Timestamp, 0),
+		})
 	}
-	return auctionEntity, nil
+
+	return auctionsEntity, nil
 }
