@@ -10,6 +10,20 @@ import (
 	"github.com/garciawell/go-challenge-auction/internal/usecase/bid_usecase"
 )
 
+type AuctionUseCaseInterface interface {
+	CreateAuction(ctx context.Context, auctionInput AuctionInputDTO) *internal_error.InternalError
+	FindAuctionById(ctx context.Context, id string) (AuctionOutputDTO, *internal_error.InternalError)
+	FindAuctions(ctx context.Context, status AuctionStatus, category, productName string) ([]AuctionOutputDTO, *internal_error.InternalError)
+	FindWinningBidByAuctionId(ctx context.Context, id string) (*WiiningBidOutputDTO, *internal_error.InternalError)
+}
+
+func NewAuctionUseCase(auctionRepository auction_entity.AuctionRepositoryInterface, bidRepository bid_entity.BidEntityRepository) AuctionUseCaseInterface {
+	return &AuctionUseCase{
+		auctionRepositoryInterface: auctionRepository,
+		bidRepositoryInterface:     bidRepository,
+	}
+}
+
 type AuctionInputDTO struct {
 	ProductName string           `json:"product_name" binding:"required,min=1,max=100"`
 	Category    string           `json:"category" binding:"required,min=2,max=100"`

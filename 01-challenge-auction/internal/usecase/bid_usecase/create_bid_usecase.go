@@ -11,6 +11,13 @@ import (
 	internal_error "github.com/garciawell/go-challenge-auction/internal/internal_erro"
 )
 
+type BidInputDTO struct {
+	Id        string  `json:"id"`
+	UserId    string  `json:"user_id"`
+	AuctionId string  `json:"auction_id"`
+	Amount    float64 `json:"amount"`
+}
+
 type BidOutputDTO struct {
 	Id        string    `json:"id"`
 	UserId    string    `json:"user_id"`
@@ -29,7 +36,7 @@ type BidUseCase struct {
 }
 
 type BidUseCaseInterface interface {
-	CreateBid(ctx context.Context, inputDTO BidOutputDTO) *internal_error.InternalError
+	CreateBid(ctx context.Context, inputDTO BidInputDTO) *internal_error.InternalError
 	FindBidByAuction(ctx context.Context, auctionId string) ([]BidOutputDTO, *internal_error.InternalError)
 	FindWinningBidByAuctionId(ctx context.Context, auctionId string) (*BidOutputDTO, *internal_error.InternalError)
 }
@@ -86,7 +93,7 @@ func (b *BidUseCase) triggerCreateRoutine(ctx context.Context) {
 
 }
 
-func (b *BidUseCase) CreateBid(ctx context.Context, inputDTO BidOutputDTO) *internal_error.InternalError {
+func (b *BidUseCase) CreateBid(ctx context.Context, inputDTO BidInputDTO) *internal_error.InternalError {
 
 	bidEntity, err := bid_entity.CreateBid(inputDTO.UserId, inputDTO.AuctionId, inputDTO.Amount)
 	if err != nil {

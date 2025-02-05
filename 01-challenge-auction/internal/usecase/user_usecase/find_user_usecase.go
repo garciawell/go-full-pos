@@ -7,6 +7,16 @@ import (
 	internal_error "github.com/garciawell/go-challenge-auction/internal/internal_erro"
 )
 
+func NewUserUseCase(userRepository user_entity.UserRepositoryInterface) UserUseCaseInterface {
+	return &UserUseCase{
+		UserRepository: userRepository,
+	}
+}
+
+type UserUseCaseInterface interface {
+	FindUserById(ctx context.Context, userId string) (*UserOutputDTO, *internal_error.InternalError)
+}
+
 type UserUseCase struct {
 	UserRepository user_entity.UserRepositoryInterface
 }
@@ -14,9 +24,6 @@ type UserUseCase struct {
 type UserOutputDTO struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
-}
-
-type UserUseCaseInterface interface {
 }
 
 func (u *UserUseCase) FindUserById(ctx context.Context, userId string) (*UserOutputDTO, *internal_error.InternalError) {
