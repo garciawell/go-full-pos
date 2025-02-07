@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/garciawell/go-challenge-cloud-run/cmd/types"
-	"github.com/garciawell/go-challenge-cloud-run/utils"
+	"github.com/garciawell/01-challenge-labs-observability/cmd/types"
+	"github.com/garciawell/01-challenge-labs-observability/utils"
 )
 
 func GetWeatherByCity(city string) (types.Weather, error) {

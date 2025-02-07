@@ -6,13 +6,59 @@ services:
     build:
       context: service-a/.
       dockerfile: Dockerfile
+    environment:
+      - TITLE=Microservice Demo
+      - CONTENT=This is a demo of a microservice
+      - BACKGROUND_COLOR=green
+      - RESPONSE_TIME=1000
+      - EXTERNAL_CALL_URL=http://serviceb:8081
+      - EXTERNAL_CALL_METHOD=GET
+      - REQUEST_NAME_OTEL=microservice-demo-request
+      - OTEL_SERVICE_NAME=microservice-demo
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+      - HTTP_PORT=:8080
     ports:
       - "8080:8080" # REST
+    depends_on:
+      - otel-collector
+      
   serviceb:
     container_name: service-b-challenge
     build:
       context: ./service-b/.
       dockerfile: Dockerfile
+    environment:
+      - TITLE=Microservice Demo 2
+      - CONTENT=This is a demo of a microservice
+      - BACKGROUND_COLOR=red
+      - RESPONSE_TIME=2000
+      - EXTERNAL_CALL_URL=http://serviceb:8081
+      - EXTERNAL_CALL_METHOD=GET
+      - REQUEST_NAME_OTEL=microservice-demo2-request
+      - OTEL_SERVICE_NAME=microservice-demo2
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+      - HTTP_PORT=:8080
     ports:
-      - "8081:8081" # REST
+      - "8081:8081"
+    depends_on:
+      - otel-collector
 
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+    - zipkin-all-in-one
+
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    restart: always
+    ports:
+      - "9411:9411"

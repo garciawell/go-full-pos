@@ -1,76 +1,72 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
+	"context"
+	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
-	"github.com/garciawell/go-challenge-cloud-run/cmd/types"
-	"github.com/garciawell/go-challenge-cloud-run/utils"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/garciawell/01-challenge-labs-observability/internal/web"
+	"github.com/garciawell/01-challenge-labs-observability/otl"
+	"github.com/spf13/viper"
+	"go.opentelemetry.io/otel"
 )
 
-type CEPInputDTO struct {
-	Cep string `json:"cep"`
+// load env vars cfg
+func init() {
+	viper.AutomaticEnv()
 }
 
 func main() {
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Post("/weather/cep", handler)
-	fmt.Println("Server running on port 8080")
-	http.ListenAndServe(":8080", r)
-}
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt)
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	var cepInput CEPInputDTO
-	err := json.NewDecoder(r.Body).Decode(&cepInput)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
+
+	shutdown, err := otl.InitProvider(viper.GetString("OTEL_SERVICE_NAME"), viper.GetString("OTEL_EXPORTER_OTLP_ENDPOINT"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		log.Fatal(err)
 	}
 
-	if utils.IsString(cepInput.Cep) == false {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	} else if len(cepInput.Cep) != 8 {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	} else {
-		client := &http.Client{}
-		url := "http://localhost:8081/weather/cep/" + cepInput.Cep
+	defer func() {
+		if err := shutdown(ctx); err != nil {
+			log.Fatal("failed to shutdown TracerProvider: %w", err)
+		}
+	}()
 
-		req, err := http.NewRequest("GET", url, nil)
-		req.Header.Add("key", "53cf7ef523ac48e5a1c02131251401")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		resp, err := client.Do(req)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Erro ao realizar a request %v\n", err)
-		}
-		defer resp.Body.Close()
-		res, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Erro ao Ler a resposta %v\n", err)
-		}
-		var data types.ResponseApi
-		err = json.Unmarshal(res, &data)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Erro ao realizar o parse %v\n", err)
-		}
+	tracer := otel.Tracer("microservice-tracer")
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(types.ResponseApi{
-			TempC: data.TempC,
-			TempF: data.TempF,
-			TempK: data.TempC + 273,
-		})
-
+	templateData := &web.TemplateData{
+		Title:              viper.GetString("TITLE"),
+		BackgroundColor:    viper.GetString("BACKGROUND_COLOR"),
+		ResponseTime:       time.Duration(viper.GetInt("RESPONSE_TIME")),
+		ExternalCallURL:    viper.GetString("EXTERNAL_CALL_URL"),
+		ExternalCallMethod: viper.GetString("EXTERNAL_CALL_METHOD"),
+		RequestNameOTEL:    viper.GetString("REQUEST_NAME_OTEL"),
+		OTELTracer:         tracer,
 	}
+
+	server := web.NewServer(templateData)
+	router := server.CreateServer()
+
+	go func() {
+		log.Println("Starting server on port", "8080")
+		if err := http.ListenAndServe(":8080", router); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	select {
+	case <-sigCh:
+		log.Println("Shutting down gracefully, CTRL+C pressed...")
+	case <-ctx.Done():
+		log.Println("Shutting down due to other reason...")
+	}
+
+	// Create a timeout context for the graceful shutdown
+	_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
 }

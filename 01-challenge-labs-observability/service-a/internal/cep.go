@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/garciawell/go-challenge-cloud-run/cmd/types"
+	"github.com/garciawell/01-challenge-labs-observability/cmd/types"
 )
 
 func GetAddressByCep(w http.ResponseWriter, cep string) types.CEP {
