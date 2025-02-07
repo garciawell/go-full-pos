@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:latest
+    restart: always
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
   servicea:
     container_name: service-a-challenge
     build:
@@ -22,6 +30,8 @@ services:
       - "8080:8080" # REST
     depends_on:
       - otel-collector
+      - jaeger-all-in-one
+      - zipkin
       
   serviceb:
     container_name: service-b-challenge
@@ -44,6 +54,8 @@ services:
       - "8081:8081"
     depends_on:
       - otel-collector
+      - jaeger-all-in-one
+      - zipkin
 
 
   otel-collector:
@@ -56,8 +68,6 @@ services:
       - "13133:13133" # health_check extension
       - "4317:4317"   # OTLP gRPC receiver
       - "55679:55679" # zpages extension
-    depends_on:
-    - zipkin
 
   zipkin:
     image: openzipkin/zipkin:latest
