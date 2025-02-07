@@ -1,5 +1,11 @@
 package types
 
+import (
+	"time"
+
+	"go.opentelemetry.io/otel/trace"
+)
+
 type CEP struct {
 	Cep         string `json:"cep"`
 	Logradouro  string `json:"logradouro"`
@@ -37,4 +43,15 @@ type ResponseApi struct {
 	TempC float64 `json:"temp_C"`
 	TempF float64 `json:"temp_F"`
 	TempK float64 `json:"temp_K"`
+}
+
+type TemplateData struct {
+	Title              string
+	BackgroundColor    string
+	ResponseTime       time.Duration
+	ExternalCallMethod string
+	ExternalCallURL    string
+	Content            string
+	RequestNameOTEL    string
+	OTELTracer         trace.Tracer
 }

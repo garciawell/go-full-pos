@@ -1,16 +1,17 @@
 package internal
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 
-	"github.com/garciawell/go-challenge-cloud-run/cmd/types"
+	"github.com/garciawell/01-challenge-labs-observability/types"
 )
 
-func GetAddressByCep(w http.ResponseWriter, cep string) types.CEP {
+func GetAddressByCep(ctx context.Context, w http.ResponseWriter, cep string) types.CEP {
 	req, err := http.Get("https://viacep.com.br/ws/" + cep + "/json")
 
 	if len(cep) != 8 {

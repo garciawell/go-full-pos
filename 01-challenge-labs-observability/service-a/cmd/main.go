@@ -8,8 +8,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/garciawell/01-challenge-labs-observability/internal/web"
 	"github.com/garciawell/01-challenge-labs-observability/otl"
+	"github.com/garciawell/01-challenge-labs-observability/service-a/internal/web"
+	"github.com/garciawell/01-challenge-labs-observability/types"
 	"github.com/spf13/viper"
 	"go.opentelemetry.io/otel"
 )
@@ -39,7 +40,7 @@ func main() {
 
 	tracer := otel.Tracer("microservice-tracer")
 
-	templateData := &web.TemplateData{
+	templateData := &types.TemplateData{
 		Title:              viper.GetString("TITLE"),
 		BackgroundColor:    viper.GetString("BACKGROUND_COLOR"),
 		ResponseTime:       time.Duration(viper.GetInt("RESPONSE_TIME")),
@@ -53,8 +54,8 @@ func main() {
 	router := server.CreateServer()
 
 	go func() {
-		log.Println("Starting server on port", "8080")
-		if err := http.ListenAndServe(":8080", router); err != nil {
+		log.Println("Starting server on port", viper.GetString("HTTP_PORT"))
+		if err := http.ListenAndServe(viper.GetString("HTTP_PORT"), router); err != nil {
 			log.Fatal(err)
 		}
 	}()

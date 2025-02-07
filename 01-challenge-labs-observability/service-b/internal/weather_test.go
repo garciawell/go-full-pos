@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -26,7 +27,8 @@ func TestGetWeatherByCity(t *testing.T) {
 
 	// Test case
 	t.Run("Valid city", func(t *testing.T) {
-		weather, err := GetWeatherByCity("Curitiba")
+		ctx := context.Background()
+		weather, err := GetWeatherByCity(ctx, "Curitiba")
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -36,7 +38,8 @@ func TestGetWeatherByCity(t *testing.T) {
 	})
 	// Test case
 	t.Run("Correct temp", func(t *testing.T) {
-		weather, err := GetWeatherByCity("Curitiba")
+		ctx := context.Background()
+		weather, err := GetWeatherByCity(ctx, "Curitiba")
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
