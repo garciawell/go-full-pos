@@ -1,7 +1,9 @@
 FROM golang:latest as builder
 WORKDIR /app
 COPY . .
-RUN GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o build cmd/main.go
+
+ARG SERVICE_NAME
+RUN GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o build $SERVICE_NAME/cmd/main.go
 
 
 FROM alpine:latest

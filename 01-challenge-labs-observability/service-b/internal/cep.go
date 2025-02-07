@@ -9,10 +9,14 @@ import (
 	"os"
 
 	"github.com/garciawell/01-challenge-labs-observability/types"
+	"go.opentelemetry.io/otel/trace"
 )
 
-func GetAddressByCep(ctx context.Context, w http.ResponseWriter, cep string) types.CEP {
+func GetAddressByCep(ctx context.Context, h trace.Tracer, w http.ResponseWriter, cep string) types.CEP {
 	req, err := http.Get("https://viacep.com.br/ws/" + cep + "/json")
+	ctx, span := h.Start(ctx, "NEW SPAN CEP")
+
+	defer span.End()
 
 	if len(cep) != 8 {
 		w.Header().Set("Content-Type", "application/json")

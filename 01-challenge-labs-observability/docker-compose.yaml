@@ -4,7 +4,9 @@ services:
   servicea:
     container_name: service-a-challenge
     build:
-      context: service-a/.
+      context: .
+      args:
+        - SERVICE_NAME=service-a  
       dockerfile: Dockerfile
     environment:
       - TITLE=Microservice Demo
@@ -16,7 +18,6 @@ services:
       - REQUEST_NAME_OTEL=microservice-demo-request
       - OTEL_SERVICE_NAME=microservice-demo
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - HTTP_PORT=:8080
     ports:
       - "8080:8080" # REST
     depends_on:
@@ -25,7 +26,9 @@ services:
   serviceb:
     container_name: service-b-challenge
     build:
-      context: ./service-b/.
+      context: .
+      args:
+        - SERVICE_NAME=service-b
       dockerfile: Dockerfile
     environment:
       - TITLE=Microservice Demo 2
@@ -37,7 +40,6 @@ services:
       - REQUEST_NAME_OTEL=microservice-demo2-request
       - OTEL_SERVICE_NAME=microservice-demo2
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - HTTP_PORT=:8081
     ports:
       - "8081:8081"
     depends_on:

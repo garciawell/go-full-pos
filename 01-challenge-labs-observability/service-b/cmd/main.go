@@ -53,8 +53,8 @@ func main() {
 	router := server.CreateServer()
 
 	go func() {
-		log.Println("Starting server on port", viper.GetString("HTTP_PORT"))
-		if err := http.ListenAndServe(viper.GetString("HTTP_PORT"), router); err != nil {
+		log.Println("Starting server on port 8081")
+		if err := http.ListenAndServe(":8081", router); err != nil {
 			log.Fatal(err)
 		}
 	}()
@@ -70,11 +70,3 @@ func main() {
 	_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 }
-
-// func main() {
-// 	r := chi.NewRouter()
-// 	r.Use(middleware.Logger)
-// 	r.Get("/weather/cep/{cep}", handler)
-// 	fmt.Println("Server running on port 8081")
-// 	http.ListenAndServe(":8081", r)
-// }

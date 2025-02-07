@@ -43,7 +43,6 @@ func (we *Webserver) CreateServer() *chi.Mux {
 }
 
 func (h *Webserver) HandleRequest(w http.ResponseWriter, r *http.Request) {
-
 	// OTL
 	carrier := propagation.HeaderCarrier(r.Header)
 	ctx := r.Context()
@@ -55,7 +54,7 @@ func (h *Webserver) HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	cep := chi.URLParam(r, "cep")
 	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(r.Header))
-	data := internal.GetAddressByCep(ctx, w, cep)
+	data := internal.GetAddressByCep(ctx, h.TemplateData.OTELTracer, w, cep)
 
 	if data.Localidade != "" {
 		dataWeather, err := internal.GetWeatherByCity(ctx, data.Localidade)
