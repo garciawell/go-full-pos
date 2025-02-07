@@ -57,9 +57,9 @@ services:
       - "4317:4317"   # OTLP gRPC receiver
       - "55679:55679" # zpages extension
     depends_on:
-    - zipkin-all-in-one
+    - zipkin
 
-  zipkin-all-in-one:
+  zipkin:
     image: openzipkin/zipkin:latest
     restart: always
     ports:

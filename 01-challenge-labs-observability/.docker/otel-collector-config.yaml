@@ -2,17 +2,19 @@ receivers:
   otlp:
     protocols:
       grpc:
-      http:
+
 exporters:
   zipkin:
-    endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
+    endpoint: "http://zipkin:9411/api/v2/spans"
     tls:
       insecure: true
+
+processors:
+  batch:
+
 service:
   pipelines:
     traces:
       receivers: [otlp]
+      processors: [batch]
       exporters: [zipkin]
-  telemetry:
-    logs:
-      level: "debug"
